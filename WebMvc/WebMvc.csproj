@@ -160,6 +160,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AmigoViewModel.cs" />
+    <Compile Include="Models\PaisViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +222,10 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Negocio\Negocio.csproj">
+      <Project>{4C51CF51-1973-4DB4-9537-8DE8F76CEAEA}</Project>
+      <Name>Negocio</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PaisesEstadosApi\PaisesEstadosApi.csproj">
       <Project>{0ae9baae-fb76-4b00-9c1c-fdf4db5200eb}</Project>
       <Name>PaisesEstadosApi</Name>

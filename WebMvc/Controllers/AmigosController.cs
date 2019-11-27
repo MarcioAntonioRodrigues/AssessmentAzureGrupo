@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Tp3AzureMarcio.Models;
 using WebMvc.Models;
 
 namespace WebMvc.Controllers
@@ -46,60 +47,91 @@ namespace WebMvc.Controllers
         }
 
         // GET: Amigos/Create
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
+
+            ActionResult x = await GetPaises();
+            IEnumerable<PaisViewModel> paises = (IEnumerable<PaisViewModel>)Session["Paises"];
+            if (paises != null)
+            {
+                ViewBag.PaisesList = new SelectList(paises, "Id", "Nome");
+            }
             return View();
         }
 
         // POST: Amigos/Create
         [HttpPost]
-        public async Task<ActionResult> Create(AmigoViewModel model)
+        public async Task<ActionResult> Create(AmigoBindModel model)
         {
-            if (ModelState.IsValid)
+            int id = int.Parse(Request.Form["PaisesList"].ToString());
+
+            string nomepais = GetNomePaisById(id);
+
+            AmigoBindModel amigo = new AmigoBindModel()
             {
-                using (var client = new HttpClient())
+                Nome = model.Nome,
+                SobreNome = model.SobreNome,
+                Email = model.Email,
+                Telefone = model.Telefone,
+                Aniversario = model.Aniversario,
+                NomePais = nomepais,
+                NomeEstado = model.NomeEstado
+            };
+
+            try
+            {
+                if (ModelState.IsValid)
                 {
-                    using (var content = new MultipartFormDataContent())
+                    using (var client = new HttpClient())
                     {
-                        client.BaseAddress = new Uri("http://localhost:49572/");
-                        client.DefaultRequestHeaders.Accept.Clear();
-
-                        content.Add(new StringContent(JsonConvert.SerializeObject(model)));
-
-                        if (Request.Files.Count > 0)
+                        using (var content = new MultipartFormDataContent())
                         {
-                            byte[] fileBytes;
-                            using (var inputStream = Request.Files[0].InputStream)
+                            client.BaseAddress = new Uri("http://localhost:49572/");
+                            client.DefaultRequestHeaders.Accept.Clear();
+
+                            content.Add(new StringContent(JsonConvert.SerializeObject(amigo)));
+
+                            if (Request.Files.Count > 0)
                             {
-                                var memoryStream = inputStream as MemoryStream;
-                                if (memoryStream == null)
+                                byte[] fileBytes;
+                                using (var inputStream = Request.Files[0].InputStream)
                                 {
-                                    memoryStream = new MemoryStream();
-                                    inputStream.CopyTo(memoryStream);
+                                    var memoryStream = inputStream as MemoryStream;
+                                    if (memoryStream == null)
+                                    {
+                                        memoryStream = new MemoryStream();
+                                        inputStream.CopyTo(memoryStream);
+                                    }
+                                    fileBytes = memoryStream.ToArray();
                                 }
-                                fileBytes = memoryStream.ToArray();
+                                var fileContent = new ByteArrayContent(fileBytes);
+                                fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+                                fileContent.Headers.ContentDisposition.FileName = Request.Files[0].FileName.Split('\\').Last();
+
+                                content.Add(fileContent);
                             }
-                            var fileContent = new ByteArrayContent(fileBytes);
-                            fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
-                            fileContent.Headers.ContentDisposition.FileName = Request.Files[0].FileName.Split('\\').Last();
 
-                            content.Add(fileContent);
+                            var response = await client.PostAsync("/api/amigos", content);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                return RedirectToAction("Index", "Amigos");
+                            }
+                            else
+                            {
+                                return View("Error");
+                            }
                         }
 
-                        var response = await client.PostAsync("/api/amigos", content);
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            return RedirectToAction("Index", "Home");
-                        }
-                        else
-                        {
-                            return View("Error");
-                        }
                     }
                 }
             }
-            return View();
+            catch
+            {
+                return View("Index");
+            }
+            return View("Index");
+
         }
 
         // GET: Amigos/Edit/5
@@ -145,5 +177,31 @@ namespace WebMvc.Controllers
                 return View();
             }
         }
+
+        [HttpGet]
+        public async Task<ActionResult> GetPaises()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:52693/");
+                var response = await client.GetAsync("/api/paises");
+                if (response.IsSuccessStatusCode)
+                {
+                    var paises = await response.Content.ReadAsAsync<IEnumerable<PaisViewModel>>();
+                    Session["Paises"] = paises;
+                    return RedirectToAction("Create", "Amigos");
+                }
+                return View("Error");
+            }
+        }
+
+        public string GetNomePaisById(int id)
+        {
+            IEnumerable<PaisViewModel> paises = (IEnumerable<PaisViewModel>)Session["Paises"];
+            var nomePais = paises.Where(p => p.Id == id).FirstOrDefault();
+
+            return nomePais.Nome;
+        }
+
     }
 }
