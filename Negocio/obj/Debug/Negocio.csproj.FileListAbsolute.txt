@@ -45,3 +45,15 @@ C:\Users\manoel\source\repos\AssessmentAzure\Negocio\obj\Debug\Negocio.csproj.Co
 C:\Users\manoel\source\repos\AssessmentAzure\Negocio\obj\Debug\Negocio.csproj.CopyComplete
 C:\Users\manoel\source\repos\AssessmentAzure\Negocio\obj\Debug\Negocio.dll
 C:\Users\manoel\source\repos\AssessmentAzure\Negocio\obj\Debug\Negocio.pdb
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\bin\Debug\Negocio.dll.config
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\bin\Debug\Negocio.dll
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\bin\Debug\Negocio.pdb
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\bin\Debug\EntityFramework.dll
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\bin\Debug\EntityFramework.xml
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\obj\Debug\Negocio.csprojAssemblyReference.cache
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\obj\Debug\Negocio.csproj.CoreCompileInputs.cache
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\obj\Debug\Negocio.csproj.CopyComplete
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\obj\Debug\Negocio.dll
+C:\Users\marcio.souza\Desktop\INFNET\AssessmentAzure\Negocio\obj\Debug\Negocio.pdb

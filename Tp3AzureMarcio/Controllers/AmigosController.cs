@@ -1,11 +1,17 @@
-﻿using Negocio.Models;
+﻿using Microsoft.Azure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Negocio.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using Tp3AzureMarcio.Models;
 
@@ -41,23 +47,41 @@ namespace Tp3AzureMarcio.Controllers
         }
 
         // POST: api/Amigos
-        public void Post(Amigo json)
+        public async Task<IHttpActionResult> Post()
         {
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                return BadRequest();
+            }
+
+            var result = await Request.Content.ReadAsMultipartAsync();
+
+            var requestJson = await result.Contents[0].ReadAsStringAsync();
+
+            var model = JsonConvert.DeserializeObject<AmigoBindModel>(requestJson);
+
+            if (result.Contents.Count > 1)
+            {
+                model.PictureUrl = await CreateBlob(result.Contents[1], model.Nome);
+            }
+
             var AmigoCriado = new Amigo()
             {
-                Id = json.Id,
-                Nome = json.Nome,
-                SobreNome = json.SobreNome,
-                Email = json.Email,
-                Telefone = json.Telefone,
-                Aniversario = json.Aniversario,
-                NomePais = json.NomePais,
-                NomeEstado = json.NomeEstado
+                Id = model.Id,
+                PictureUrl = model.PictureUrl,
+                Nome = model.Nome,
+                SobreNome = model.SobreNome,
+                Email = model.Email,
+                Telefone = model.Telefone,
+                Aniversario = model.Aniversario,
+                NomePais = model.NomePais,
+                NomeEstado = model.NomeEstado
             };
 
             _dataContext.Amigos.Add(AmigoCriado);
             _dataContext.SaveChanges();
 
+            return Ok();
         }
 
         // PUT: api/Amigos/5
@@ -90,6 +114,42 @@ namespace Tp3AzureMarcio.Controllers
                 _dataContext.SaveChanges();
             }
 
+        }
+
+        private async Task<string> CreateBlob(HttpContent httpContent, string userName)
+        {
+            var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+
+            var blobContainerName = userName.ToLower();
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            var blobContainer = blobClient.GetContainerReference(blobContainerName);
+
+            await blobContainer.CreateIfNotExistsAsync();
+
+            await blobContainer.SetPermissionsAsync(
+                new BlobContainerPermissions
+                {
+                    PublicAccess = BlobContainerPublicAccessType.Blob
+                });
+
+            var fileName = httpContent.Headers.ContentDisposition.FileName;
+            if (fileName == null)
+            {
+                return null;
+            }
+            var byteArray = await httpContent.ReadAsByteArrayAsync();
+
+            var blob = blobContainer.GetBlockBlobReference(GetRandomBlobName(fileName));
+            await blob.UploadFromByteArrayAsync(byteArray, 0, byteArray.Length);
+
+            return blob.Uri.AbsoluteUri;
+
+        }
+
+        private string GetRandomBlobName(string fileName)
+        {
+            string ext = Path.GetExtension(fileName);
+            return string.Format("{0:10}_{1}{2}", DateTime.Now.Ticks, Guid.NewGuid(), ext);
         }
     }
 }

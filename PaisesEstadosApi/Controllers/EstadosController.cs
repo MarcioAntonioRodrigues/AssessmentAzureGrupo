@@ -30,9 +30,10 @@ namespace PaisesEstadosApi.Controllers
         }
 
         // GET: api/Estados/5
-        public string Get(int id)
+        public Estado Get(int id)
         {
-            return "value";
+            Estado estadoSelecionado = _dataContext.Estados.Where(p => p.Id == id).FirstOrDefault();
+            return estadoSelecionado;
         }
 
         // POST: api/Estados
@@ -50,13 +51,28 @@ namespace PaisesEstadosApi.Controllers
         }
 
         // PUT: api/Estados/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, Estado estado)
         {
+            var estadoAlterado = _dataContext.Estados.Where(e => e.Id == id).FirstOrDefault();
+            if(estadoAlterado != null)
+            {
+                estadoAlterado.Nome = estado.Nome;
+                estadoAlterado.BandeiraUrl = estado.BandeiraUrl;
+                estadoAlterado.PaisId = estado.PaisId;
+            }
+            _dataContext.SaveChanges();
         }
 
         // DELETE: api/Estados/5
         public void Delete(int id)
         {
+            var estadoDeletado = _dataContext.Estados.Where(e => e.Id == id).FirstOrDefault();
+            if (estadoDeletado != null)
+            {
+                _dataContext.Estados.Remove(estadoDeletado);
+            }
+            _dataContext.SaveChanges();
         }
+
     }
 }

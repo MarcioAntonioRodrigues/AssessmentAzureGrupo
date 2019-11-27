@@ -11,7 +11,7 @@ namespace Negocio.Models
 {
     public class DataContext: DbContext
     {
-        public DataContext() : base("banco_x")
+        public DataContext() : base("banco_marcio")
         {
         }
 

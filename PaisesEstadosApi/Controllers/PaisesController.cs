@@ -38,9 +38,10 @@ namespace PaisesEstadosApi.Controllers
         }
 
         // GET: api/Paises/5
-        public string Get(int id)
+        public Pais Get(int id)
         {
-            return "value";
+            Pais paisSelecionado = _dataContext.Paises.Where(p => p.Id == id).FirstOrDefault();
+            return paisSelecionado;
         }
 
         // POST: api/Paises
