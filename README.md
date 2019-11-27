@@ -1,0 +1,2 @@
+# AssessmentAzureGrupo
+Trabalho faculdade
